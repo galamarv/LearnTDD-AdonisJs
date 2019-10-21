@@ -116,3 +116,20 @@ test('can access all resources', async ({ client }) => {
   response.assertStatus(200)
   response.assertJSON({ threads: threads.map(thread => thread.toJSON()).sort((a, b) => a.id - b.id) })
 })
+
+test('moderator can delete threads', async ({ assert, client }) => {
+  const moderator = await Factory.model('App/Models/User').create({ type: 1 })
+  const thread = await Factory.model('App/Models/Thread').create()
+  const response = await client.delete(thread.url()).send().loginVia(moderator).end()
+  response.assertStatus(204)
+  assert.equal(await Thread.getCount(), 0)
+})
+
+test('moderator can update title and body of threads', async ({ assert, client }) => {
+  const thread = await Factory.model('App/Models/Thread').create()
+  const moderator = await Factory.model('App/Models/User').create({ type: 1})
+  const attributes = { title: 'new title', body: 'new body' }
+
+  const response = await client.put(thread.url()).loginVia(moderator).send(attributes).end()
+  response.assertStatus(200)
+})

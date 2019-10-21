@@ -36,7 +36,11 @@ class User extends Model {
   }
   threads() {
     return this.hasMany('App/Models/Thread')
-}
+  }
+
+  isModerator() {
+    return this.type === 1
+  }
 }
 
 module.exports = User
